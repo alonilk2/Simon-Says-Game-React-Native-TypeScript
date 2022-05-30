@@ -61,12 +61,9 @@ const useRandomSequence = ({
   }, []);
 
   useEffect(() => {
-    console.log(sequence);
-    sequence.forEach(async element => {
-
-    });
     triggerColorsInSequence();
   }, [sequence]);
+  
   const triggerColorsInSequence = async () => {
     let i;
     for (i = 0; i < sequence.length; i++) {
