@@ -31,12 +31,13 @@ import {
 } from 'react-native/Libraries/NewAppScreen';
 import {RootState, store} from './store';
 import {Provider, useDispatch, useSelector} from 'react-redux';
-
 import useRandomSequence from './src/Hooks/useRandomSequence';
 import {appendElement} from './src/Features/sequenceSlice';
-import Results from './src/Components/NameModal';
 import {NavigationContainer} from '@react-navigation/native';
-import {createNativeStackNavigator, NativeStackScreenProps} from '@react-navigation/native-stack';
+import {
+  createNativeStackNavigator,
+  NativeStackScreenProps,
+} from '@react-navigation/native-stack';
 import Highscores from './src/Components/Highscores';
 
 const AppWrapper = () => {
@@ -63,7 +64,7 @@ export type RootStackParamList = {
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
-const App = ({ navigation }: Props) => {
+const App = ({navigation}: Props) => {
   const isDarkMode = useColorScheme() === 'dark';
   const dispatch = useDispatch();
   const [clickedColor, setClickedColor] = useState<number>();
@@ -83,14 +84,22 @@ const App = ({ navigation }: Props) => {
   });
 
   const handleClick = (number: number) => {
-    dispatch(appendElement(number));
+    console.log(simonSpeaks)
+    !simonSpeaks && isActive && dispatch(appendElement(number));
   };
 
-  useEffect(()=>{
-    navigation.navigate('Highscores' as never, {
-      restartGame: restartGame
-    } as never)
-  },[nameModalVisible])
+  useEffect(() => {
+    navigation.navigate(
+      'Highscores' as never,
+      {
+        restartGame: restartGame,
+      } as never,
+    );
+  }, [nameModalVisible]);
+
+  const handlePressIn = (colorId: number) => {
+    !simonSpeaks && isActive && setClickedColor(colorId);
+  };
 
   return (
     <SafeAreaView style={backgroundStyle}>
@@ -104,8 +113,8 @@ const App = ({ navigation }: Props) => {
           {!isActive && <Button title="Start Game" onPress={restartGame} />}
           <View style={styles.colorsContainer}>
             <Pressable
-              onPress={() => !simonSpeaks &&  handleClick(1)}
-              onPressIn={() => !simonSpeaks &&  setClickedColor(1)}
+              onPress={() => handleClick(1)}
+              onPressIn={() => handlePressIn(1)}
               onPressOut={() => setClickedColor(-1)}
               style={{
                 flex: 1,
@@ -115,8 +124,8 @@ const App = ({ navigation }: Props) => {
                     : 'rgb(0,50,0)',
               }}></Pressable>
             <Pressable
-              onPress={() => !simonSpeaks && handleClick(2)}
-              onPressIn={() => !simonSpeaks && setClickedColor(2)}
+              onPress={() => handleClick(2)}
+              onPressIn={() => handlePressIn(2)}
               onPressOut={() => setClickedColor(-1)}
               style={{
                 flex: 1,
@@ -128,8 +137,8 @@ const App = ({ navigation }: Props) => {
           </View>
           <View style={styles.colorsContainer}>
             <Pressable
-              onPress={() => !simonSpeaks &&  handleClick(3)}
-              onPressIn={() => !simonSpeaks &&  setClickedColor(3)}
+              onPress={() => handleClick(3)}
+              onPressIn={() => handlePressIn(3)}
               onPressOut={() => setClickedColor(-1)}
               style={{
                 flex: 1,
@@ -140,8 +149,8 @@ const App = ({ navigation }: Props) => {
                     : 'rgb(50,50,0)',
               }}></Pressable>
             <Pressable
-              onPress={() => !simonSpeaks &&  handleClick(4)}
-              onPressIn={() => !simonSpeaks &&  setClickedColor(4)}
+              onPress={() => handleClick(4)}
+              onPressIn={() => handlePressIn(4)}
               onPressOut={() => setClickedColor(-1)}
               style={{
                 flex: 1,

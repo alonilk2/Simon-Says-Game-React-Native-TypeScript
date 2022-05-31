@@ -1,7 +1,7 @@
 import {useState, useEffect, useRef} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import {RootState} from '../../store';
-import { showModal } from '../Features/modalSlice';
+import {showModal} from '../Features/modalSlice';
 import {resetUserSequence} from '../Features/sequenceSlice';
 import {triggerColor} from '../Features/simonSlice';
 
@@ -14,16 +14,14 @@ const randomInteger = (min: number, max: number) => {
 };
 
 type ReturnedTypes = {
-    isActive: boolean,
-    score: number,
-    next: () => void,
-    restartGame: () => void,
-    simonSpeaks: boolean
-}
+  isActive: boolean;
+  score: number;
+  next: () => void;
+  restartGame: () => void;
+  simonSpeaks: boolean;
+};
 
-const useRandomSequence = ({
-  maxNumber,
-}: Props): ReturnedTypes => {
+const useRandomSequence = ({maxNumber}: Props): ReturnedTypes => {
   const [sequence, setSequence] = useState<number[]>([]);
   const [isActive, setIsActive] = useState(false);
   const [simonSpeaks, setSimonSpeaks] = useState(false);
@@ -44,14 +42,14 @@ const useRandomSequence = ({
 
   const abortGame = () => {
     setIsActive(false);
-    dispatch(showModal())
+    dispatch(showModal());
   };
 
   const restartGame = () => {
     setSequence([]);
     initialRender.current = true;
     setIsActive(true);
-  }
+  };
 
   const compareSequence = (userSequence: number[]): boolean => {
     let isEqual = false;
@@ -78,22 +76,30 @@ const useRandomSequence = ({
   }, [initialRender.current]);
 
   useEffect(() => {
-    isActive && triggerColorsInSequence();
+    triggerSimonSpeaking();
   }, [sequence, isActive]);
 
+  const triggerSimonSpeaking = async () => {
+    if (isActive) {
+      setSimonSpeaks(true);
+      await triggerColorsInSequence();
+      setSimonSpeaks(false);
+    }
+  };
+
   const triggerColorsInSequence = async () => {
-    let i;
-    await new Promise(resolve => setTimeout(resolve, 500));
-    for (i = 0; i < sequence.length; i++) {
-        setSimonSpeaks(true)
-        dispatch(triggerColor(-1))
+    return new Promise(async resolve => {
+      let i;
+      await new Promise(resolve => setTimeout(resolve, 500));
+      for (i = 0; i < sequence.length; i++) {
+        dispatch(triggerColor(-1));
         await new Promise(resolve => setTimeout(resolve, 300));
         dispatch(triggerColor(sequence[i]));
         await new Promise(resolve => setTimeout(resolve, 300));
-        setSimonSpeaks(false)
-    }
-    dispatch(triggerColor(-1));
-
+      }
+      dispatch(triggerColor(-1));
+      resolve('done');
+    });
   };
   return {isActive, score, next, restartGame, simonSpeaks};
 };
