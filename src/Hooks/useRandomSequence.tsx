@@ -5,10 +5,6 @@ import {showModal} from '../Features/modalSlice';
 import {resetUserSequence} from '../Features/sequenceSlice';
 import {triggerColor} from '../Features/simonSlice';
 
-interface Props {
-  maxNumber: number;
-}
-
 const randomInteger = (min: number, max: number) => {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 };
@@ -21,12 +17,11 @@ type ReturnedTypes = {
   simonSpeaks: boolean;
 };
 
-const useRandomSequence = ({maxNumber}: Props): ReturnedTypes => {
+const useRandomSequence = (): ReturnedTypes => {
   const [sequence, setSequence] = useState<number[]>([]);
   const [isActive, setIsActive] = useState(false);
   const [simonSpeaks, setSimonSpeaks] = useState(false);
-
-  const _maxNum = maxNumber;
+  const _maxNum = 4;
   const initialRender = useRef(true);
   const enteredSequence = useSelector(
     (state: RootState) => state.userSequence.sequence,

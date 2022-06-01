@@ -1,14 +1,20 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import {RootState} from '../../store';
 import {hideModal} from '../Features/modalSlice';
 import {Text, View, Modal, Pressable, StyleSheet, TextInput} from 'react-native';
 
+type Props = {
+  saveResult: (name: string, score: number) => Promise<void>;
+  score: number
+}
 
-const NameModal = () => {
+const NameModal = ({saveResult, score} : Props) => {
   const dispatch = useDispatch();
   const [playerName, setPlayerName] = useState('')
+  
   const handleHideModal = () => {
+    saveResult(playerName, score)
     dispatch(hideModal());
   };
 
@@ -32,7 +38,7 @@ const NameModal = () => {
           <TextInput
             style={{height: 40}}
             placeholder="Your Name"
-            onChangeText={newText => setPlayerName(newText)}
+            onChangeText={e => setPlayerName(e)}
             defaultValue={playerName}
           />
           <Pressable
