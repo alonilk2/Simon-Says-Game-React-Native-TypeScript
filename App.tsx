@@ -1,13 +1,3 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * Generated with the TypeScript template
- * https://github.com/react-native-community/react-native-template-typescript
- *
- * @format
- */
-
 import React, {useEffect, useState} from 'react';
 import {
   Button,
@@ -16,19 +6,10 @@ import {
   StatusBar,
   StyleSheet,
   Text,
-  useColorScheme,
   View,
-  Modal,
   Pressable,
 } from 'react-native';
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
 import {RootState, store} from './store';
 import {Provider, useDispatch, useSelector} from 'react-redux';
 import useRandomSequence from './src/Hooks/useRandomSequence';
@@ -58,6 +39,7 @@ const Stack = createNativeStackNavigator();
 export type RootStackParamList = {
   Home: undefined;
   Highscores: {
+    score: number;
     restartGame: () => void;
   };
 };
@@ -65,120 +47,124 @@ export type RootStackParamList = {
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
 const App = ({navigation}: Props) => {
-  const isDarkMode = useColorScheme() === 'dark';
-  const dispatch = useDispatch();
   const [clickedColor, setClickedColor] = useState<number>();
-
-  const currentColor = useSelector(
-    (state: RootState) => state.simonSequence.currentColor,
-  );
-
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
+  const dispatch = useDispatch();
   const nameModalVisible = useSelector(
     (state: RootState) => state.nameModal.showModal,
   );
-  const {isActive, score, restartGame, simonSpeaks} = useRandomSequence({
-    maxNumber: 4,
-  });
+  const currentColor = useSelector(
+    (state: RootState) => state.simonSequence.currentColor,
+  );
+  const {isActive, score, restartGame, simonSpeaks} = useRandomSequence();
 
   const handleClick = (number: number) => {
-    console.log(simonSpeaks)
     !simonSpeaks && isActive && dispatch(appendElement(number));
   };
-
-  useEffect(() => {
-    navigation.navigate(
-      'Highscores' as never,
-      {
-        restartGame: restartGame,
-      } as never,
-    );
-  }, [nameModalVisible]);
 
   const handlePressIn = (colorId: number) => {
     !simonSpeaks && isActive && setClickedColor(colorId);
   };
 
-  return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <ScrollView style={backgroundStyle}>
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Text style={styles.score}>Score: {score}</Text>
-          {!isActive && <Button title="Start Game" onPress={restartGame} />}
-          <View style={styles.colorsContainer}>
-            <Pressable
-              onPress={() => handleClick(1)}
-              onPressIn={() => handlePressIn(1)}
-              onPressOut={() => setClickedColor(-1)}
-              style={{
-                flex: 1,
-                backgroundColor:
-                  currentColor === 1 || clickedColor === 1
-                    ? 'rgb(0,225,0)'
-                    : 'rgb(0,50,0)',
-              }}></Pressable>
-            <Pressable
-              onPress={() => handleClick(2)}
-              onPressIn={() => handlePressIn(2)}
-              onPressOut={() => setClickedColor(-1)}
-              style={{
-                flex: 1,
-                backgroundColor:
-                  currentColor === 2 || clickedColor === 2
-                    ? 'rgb(225,0,0)'
-                    : 'rgb(50,0,0)',
-              }}></Pressable>
-          </View>
-          <View style={styles.colorsContainer}>
-            <Pressable
-              onPress={() => handleClick(3)}
-              onPressIn={() => handlePressIn(3)}
-              onPressOut={() => setClickedColor(-1)}
-              style={{
-                flex: 1,
+  useEffect(() => {
+    nameModalVisible &&
+      navigation.navigate(
+        'Highscores' as never,
+        {
+          score: score,
+          restartGame: restartGame,
+        } as never,
+      );
+  }, [nameModalVisible]);
 
-                backgroundColor:
-                  currentColor === 3 || clickedColor === 3
-                    ? 'rgb(225,225,0)'
-                    : 'rgb(50,50,0)',
-              }}></Pressable>
-            <Pressable
-              onPress={() => handleClick(4)}
-              onPressIn={() => handlePressIn(4)}
-              onPressOut={() => setClickedColor(-1)}
-              style={{
-                flex: 1,
-                backgroundColor:
-                  currentColor === 4 || clickedColor === 4
-                    ? 'rgb(0,0,225)'
-                    : 'rgb(0,0,50)',
-              }}></Pressable>
+  const ColorBox = (
+    colorId: number,
+    colorStringIn: string,
+    colorStringOut: string,
+  ) => {
+    return (
+      <Pressable
+        onPress={() => handleClick(colorId)}
+        onPressIn={() => handlePressIn(colorId)}
+        onPressOut={() => setClickedColor(-1)}
+        style={{
+          flex: 1,
+          backgroundColor:
+            currentColor === colorId || clickedColor === colorId
+              ? colorStringIn
+              : colorStringOut,
+        }}></Pressable>
+    );
+  };
+
+  return (
+    <SafeAreaView>
+      <StatusBar />
+      <View
+        style={{
+          display: 'flex',
+          justifyContent: 'flex-end',
+          flexDirection: 'column',
+          height: '100%',
+        }}>
+        <View style={styles.colorContainer}>
+          <View style={styles.circle}>
+            {!isActive ? (
+              <Pressable onPress={restartGame} style={styles.startContainer}>
+                <Text style={styles.startText}>Start</Text>
+              </Pressable>
+            ) : (
+              <Text style={styles.score}>{score}</Text>
+            )}
+          </View>
+          <View style={styles.colorRow}>
+            {ColorBox(1, 'rgb(0,225,0)', 'rgb(0,50,0)')}
+            {ColorBox(2, 'rgb(225,0,0)', 'rgb(50,0,0)')}
+          </View>
+          <View style={styles.colorRow}>
+            {ColorBox(3, 'rgb(225,225,0)', 'rgb(50,50,0)')}
+            {ColorBox(4, 'rgb(0,0,225)', 'rgb(0,0,50)')}
           </View>
         </View>
-      </ScrollView>
+      </View>
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
   score: {
-    fontSize: 28,
+    fontSize: 48,
     textAlign: 'center',
     margin: '10%',
+    color: 'white',
   },
   sectionTitle: {
     fontSize: 24,
     fontWeight: '600',
+  },
+  startText: {
+    color: 'white',
+    fontSize: 48,
+  },
+  circle: {
+    height: 200,
+    borderRadius: 100,
+    width: 200,
+    position: 'absolute',
+    top: '50%',
+    transform: [{translateY: -50}],
+    zIndex: 1,
+    left: 100,
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgb(0,0,0)',
+  },
+  startContainer: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '100%',
+    height: '100%',
   },
   sectionDescription: {
     marginTop: 8,
@@ -188,51 +174,15 @@ const styles = StyleSheet.create({
   highlight: {
     fontWeight: '700',
   },
-  colorsContainer: {
+  colorContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  colorRow: {
     display: 'flex',
     flexDirection: 'row',
-    height: 300,
-  },
-  centeredView: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 22,
-  },
-  modalView: {
-    margin: 20,
-    backgroundColor: 'white',
-    borderRadius: 20,
-    padding: 35,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-  },
-  button: {
-    borderRadius: 20,
-    padding: 10,
-    elevation: 2,
-  },
-  buttonOpen: {
-    backgroundColor: '#F194FF',
-  },
-  buttonClose: {
-    backgroundColor: '#2196F3',
-  },
-  textStyle: {
-    color: 'white',
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
-  modalText: {
-    marginBottom: 15,
-    textAlign: 'center',
+
+    height: '50%',
   },
 });
 
