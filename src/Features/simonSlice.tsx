@@ -18,7 +18,6 @@ export const simonSlice = createSlice({
   },
 });
 
-// Action creators are generated for each case reducer function
 export const {triggerColor} = simonSlice.actions;
 
 export default simonSlice.reducer;

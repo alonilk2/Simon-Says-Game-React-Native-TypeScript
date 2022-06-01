@@ -1,25 +1,28 @@
 import React, {useEffect, useState} from 'react';
 import {
-  Button,
   SafeAreaView,
-  ScrollView,
   StatusBar,
   StyleSheet,
   Text,
   View,
   Pressable,
 } from 'react-native';
-
 import {RootState, store} from './store';
 import {Provider, useDispatch, useSelector} from 'react-redux';
-import useRandomSequence from './src/Hooks/useRandomSequence';
 import {appendElement} from './src/Features/sequenceSlice';
 import {NavigationContainer} from '@react-navigation/native';
 import {
   createNativeStackNavigator,
   NativeStackScreenProps,
 } from '@react-navigation/native-stack';
+import useRandomSequence from './src/Hooks/useRandomSequence';
 import Highscores from './src/Components/Highscores';
+import {LogBox} from 'react-native';
+import useSounds from './src/Hooks/useSounds';
+LogBox.ignoreLogs([
+  'Non-serializable values were found in the navigation state',
+]);
+
 
 const AppWrapper = () => {
   return (
@@ -56,15 +59,7 @@ const App = ({navigation}: Props) => {
     (state: RootState) => state.simonSequence.currentColor,
   );
   const {isActive, score, restartGame, simonSpeaks} = useRandomSequence();
-
-  const handleClick = (number: number) => {
-    !simonSpeaks && isActive && dispatch(appendElement(number));
-  };
-
-  const handlePressIn = (colorId: number) => {
-    !simonSpeaks && isActive && setClickedColor(colorId);
-  };
-
+  const blip = useSounds();
   useEffect(() => {
     nameModalVisible &&
       navigation.navigate(
@@ -75,6 +70,17 @@ const App = ({navigation}: Props) => {
         } as never,
       );
   }, [nameModalVisible]);
+
+  const handleClick = (number: number) => {
+    !simonSpeaks && isActive && dispatch(appendElement(number));
+  };
+
+  const handlePressIn = (colorId: number) => {
+    if(!simonSpeaks && isActive){
+      blip[colorId-1]?.play()
+      setClickedColor(colorId);
+    }
+  };
 
   const ColorBox = (
     colorId: number,
@@ -151,7 +157,7 @@ const styles = StyleSheet.create({
     width: 200,
     position: 'absolute',
     top: '50%',
-    transform: [{translateY: -50}],
+    transform: [{translateY: -100}],
     zIndex: 1,
     left: 100,
     display: 'flex',

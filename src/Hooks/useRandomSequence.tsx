@@ -4,7 +4,7 @@ import {RootState} from '../../store';
 import {showModal} from '../Features/modalSlice';
 import {resetUserSequence} from '../Features/sequenceSlice';
 import {triggerColor} from '../Features/simonSlice';
-
+import useSounds from '../Hooks/useSounds';
 const randomInteger = (min: number, max: number) => {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 };
@@ -28,6 +28,23 @@ const useRandomSequence = (): ReturnedTypes => {
   );
   const dispatch = useDispatch();
   var score = sequence.length - 1;
+  const blip = useSounds();
+
+  useEffect(() => {
+    if (enteredSequence.length > 0) {
+      let isEqual = compareSequence(enteredSequence);
+      isEqual === true && enteredSequence.length === sequence.length && next();
+    }
+  }, [enteredSequence]);
+
+  useEffect(() => {
+    initialRender.current === true && next();
+    initialRender.current = false;
+  }, [initialRender.current]);
+
+  useEffect(() => {
+    triggerSimonSpeaking();
+  }, [sequence, isActive]);
 
   const next = async () => {
     dispatch(resetUserSequence());
@@ -46,6 +63,12 @@ const useRandomSequence = (): ReturnedTypes => {
     setIsActive(true);
   };
 
+  /**
+   * compareSequence gets an array representing the user's entered sequence
+   * and comperes each element of the array with simon's random sequence (sequence state variable)
+   * @param userSequence
+   * @returns a boolean value representing if the sequence is equal to simon's.
+   */
   const compareSequence = (userSequence: number[]): boolean => {
     let isEqual = false;
     if (sequence.length > 0) {
@@ -57,22 +80,6 @@ const useRandomSequence = (): ReturnedTypes => {
     } else return false;
     return isEqual;
   };
-
-  useEffect(() => {
-    if (enteredSequence.length > 0) {
-      let isEqual = compareSequence(enteredSequence);
-      isEqual === true && enteredSequence.length === sequence.length && next();
-    }
-  }, [enteredSequence]);
-
-  useEffect(() => {
-    initialRender.current === true && next();
-    initialRender.current = false;
-  }, [initialRender.current]);
-
-  useEffect(() => {
-    triggerSimonSpeaking();
-  }, [sequence, isActive]);
 
   const triggerSimonSpeaking = async () => {
     if (isActive) {
@@ -90,6 +97,7 @@ const useRandomSequence = (): ReturnedTypes => {
         dispatch(triggerColor(-1));
         await new Promise(resolve => setTimeout(resolve, 300));
         dispatch(triggerColor(sequence[i]));
+        blip[sequence[i] - 1]?.play();
         await new Promise(resolve => setTimeout(resolve, 300));
       }
       dispatch(triggerColor(-1));

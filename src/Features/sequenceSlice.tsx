@@ -22,7 +22,6 @@ export const sequenceSlice = createSlice({
   },
 });
 
-// Action creators are generated for each case reducer function
 export const {appendElement, resetUserSequence} = sequenceSlice.actions;
 
 export default sequenceSlice.reducer;

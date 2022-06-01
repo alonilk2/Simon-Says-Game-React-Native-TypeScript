@@ -1,15 +1,15 @@
-import React, {useState} from 'react';
-import {Text, View, StyleSheet, Pressable} from 'react-native';
+import React from 'react';
 import NameModal from './NameModal';
+import useHighscores from '../Hooks/useHighscores';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {RootStackParamList} from '../../App';
-import useHighscores from '../Hooks/useHighscores';
+import {Text, View, StyleSheet, Pressable} from 'react-native';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Highscores'>;
 
 const Highscores = ({route, navigation}: Props) => {
   const {score} = route.params;
-  const {saveResult, scoreList} = useHighscores();
+  const {saveScore, scoreList} = useHighscores();
   const ScoreList = scoreList.map((score, idx) => {
     return (
       <Text key={idx} style={styles.scoretext}>
@@ -19,10 +19,10 @@ const Highscores = ({route, navigation}: Props) => {
   });
   return (
     <View style={styles.container}>
-      <NameModal saveResult={saveResult} score={score} />
+      <NameModal saveScore={saveScore} score={score} />
       <Text style={styles.title}>Highscores</Text>
       <View style={{flex: 1}}>{ScoreList}</View>
-      <Pressable style={styles.startbtn} onPress={()=>navigation.goBack()}>
+      <Pressable style={styles.startbtn} onPress={() => navigation.goBack()}>
         <Text style={styles.btntext}>New Game</Text>
       </Pressable>
     </View>
@@ -36,10 +36,12 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'space-between',
     alignItems: 'center',
+    backgroundColor: 'white',
   },
   title: {
     fontSize: 48,
-    margin: '15%',
+    margin: '10%',
+    color: 'black',
   },
   startbtn: {
     backgroundColor: 'orange',
@@ -49,16 +51,18 @@ const styles = StyleSheet.create({
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: '20%'
+    marginBottom: '20%',
   },
   btntext: {
     fontSize: 20,
-    fontWeight: '800'
+    fontWeight: '800',
+    color: 'black',
   },
   scoretext: {
     fontSize: 24,
     textAlign: 'center',
-    margin: 2
+    margin: 2,
+    color: 'black',
   },
 });
 export default Highscores;
